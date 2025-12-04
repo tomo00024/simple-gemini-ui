@@ -1,0 +1,215 @@
+# Simple Gemini UI
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![SvelteKit](https://img.shields.io/badge/SvelteKit-FF3E00?logo=svelte&logoColor=white)](https://kit.svelte.dev/)
+[![TailwindCSS](https://img.shields.io/badge/TailwindCSS-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+
+Gemini APIを活用したシンプルなチャットUIツールです。複数のAPIキー管理、自動リトライ、Dropbox連携などの便利な機能を搭載しています。
+
+[**🚀 アプリを開く**](https://tomo00024.github.io/simple-gemini-ui/)
+
+---
+
+## ✨ 特徴
+
+- 🔑 **複数APIキー管理**: 複数のGemini API Keyを登録・切り替え可能
+- 🔄 **自動リトライ**: 自動でリトライする機能
+- ☁️ **Dropbox連携**: チャット履歴をDropboxにバックアップ
+- 📎 **ファイル添付**: 画像やドキュメントを添付してAIと対話
+- 💾 **ローカルストレージ**: 全ての会話はブラウザのIndexedDBに保存
+
+
+---
+
+## 📖 使い方
+
+### 1. API Keyの取得
+
+[Google AI Studio](https://aistudio.google.com/app/apikey) でGemini API Keyを取得してください。
+
+### 2. API Keyの設定
+
+1. [アプリを開く](https://tomo00024.github.io/simple-gemini-ui/)
+2. 設定画面を開く
+3. Gemini API Keyを入力
+4. 複数のAPIキーを登録することを推奨します（レート制限対策）
+
+### 3. チャットを開始
+
+- メッセージを入力してEnterキーまたは送信ボタンを押す
+- ファイルを添付する場合は、添付ボタン（📎）をクリック
+- モデルや生成パラメータは設定画面で調整可能
+
+---
+
+## 🛠️ 技術スタック
+
+### フロントエンド
+- **フレームワーク**: [SvelteKit](https://kit.svelte.dev/) (Svelte 5)
+- **スタイリング**: [TailwindCSS](https://tailwindcss.com/) v4
+- **UIコンポーネント**: [Shadcn-Svelte](https://shadcn-svelte.com/), [bits-ui](https://bits-ui.com/)
+- **アイコン**: [Lucide Icons](https://lucide.dev/)
+
+### データ管理
+- **ローカルDB**: [Dexie.js](https://dexie.org/) (IndexedDB wrapper)
+- **クラウド同期**: [Dropbox SDK](https://www.dropbox.com/developers)
+
+### AI・マークダウン
+- **AI API**: [Google Generative AI SDK](https://www.npmjs.com/package/@google/genai)
+- **マークダウン**: [Marked](https://marked.js.org/)
+- **シンタックスハイライト**: [Highlight.js](https://highlightjs.org/)
+
+---
+
+## 🚀 ローカル開発
+
+### 必要要件
+
+- Node.js 18.x以上
+- npm または pnpm
+
+### セットアップ
+
+```bash
+# リポジトリをクローン
+git clone https://github.com/tomo00024/simple-gemini-ui.git
+cd simple-gemini-ui
+
+# 依存関係をインストール
+npm install
+
+# 開発サーバーを起動
+npm run dev
+```
+
+アプリは `http://localhost:5173` で起動します。
+
+### ビルド
+
+```bash
+# プロダクションビルドを作成
+npm run build
+
+# ビルドをプレビュー
+npm run preview
+```
+
+### その他のコマンド
+
+```bash
+# 型チェック
+npm run check
+
+# Lintチェック
+npm run lint
+
+# コードフォーマット
+npm run format
+```
+
+---
+
+## 📁 プロジェクト構造
+
+```
+simple-gemini-ui/
+├── src/
+│   ├── lib/
+│   │   ├── components/
+│   │   │   ├── app/              # メインアプリコンポーネント
+│   │   │   │   ├── ChatMessage.svelte       # チャットメッセージ表示
+│   │   │   │   ├── ChatHistorySheet.svelte  # 会話履歴サイドバー
+│   │   │   │   ├── Header.svelte            # アプリヘッダー
+│   │   │   │   ├── Footer.svelte            # 入力フォーム・送信エリア
+│   │   │   │   ├── MarkdownRenderer.svelte  # マークダウン描画
+│   │   │   │   ├── QuickSettingsDrawer.svelte # クイック設定
+│   │   │   │   └── SettingsSheet.svelte     # 設定モーダル
+│   │   │   ├── settings/         # 設定画面コンポーネント
+│   │   │   │   ├── ApiSettings.svelte       # API設定
+│   │   │   │   ├── GenerationSettings.svelte # 生成パラメータ設定
+│   │   │   │   ├── AccountSettings.svelte   # アカウント・Dropbox連携
+│   │   │   │   ├── UsageSettings.svelte     # 使用量統計
+│   │   │   │   ├── DiceSettings.svelte      # サイコロ機能設定
+│   │   │   │   ├── InterfaceSettings.svelte # UI設定
+│   │   │   │   └── DangerZone.svelte        # データ削除等
+│   │   │   └── ui/               # 再利用可能UIコンポーネント（Shadcn-Svelte）
+│   │   ├── services/             # ビジネスロジック・外部API連携
+│   │   │   ├── gemini.ts                # Gemini API呼び出し
+│   │   │   ├── ai-orchestrator.ts       # AI応答オーケストレーション
+│   │   │   ├── dropbox.ts               # Dropbox同期
+│   │   │   ├── attachment.ts            # ファイル添付処理
+│   │   │   ├── token-cost.ts            # トークン使用量・コスト計算
+│   │   │   ├── exchange-rate.ts         # 為替レート取得
+│   │   │   ├── image-correction.ts      # 画像補正
+│   │   │   └── dice.ts                  # サイコロ機能
+│   │   ├── logic/                # コアロジック
+│   │   │   ├── message-composer.ts      # メッセージ構築
+│   │   │   ├── gemini-error-handler.ts  # エラーハンドリング
+│   │   │   └── log-tree-manager.ts      # ログツリー管理
+│   │   ├── state/                # 状態管理
+│   │   ├── db/                   # データベーススキーマ
+│   │   ├── hooks/                # Svelteカスタムフック
+│   │   ├── assets/               # アセット（画像等）
+│   │   ├── db.ts                 # Dexie.js設定
+│   │   ├── settings.svelte.ts    # アプリ設定（runes）
+│   │   ├── types.ts              # 型定義
+│   │   ├── constants.ts          # 定数定義
+│   │   └── utils.ts              # ユーティリティ関数
+│   ├── routes/
+│   │   ├── +layout.svelte        # ルートレイアウト
+│   │   ├── +layout.ts            # レイアウトロード関数
+│   │   ├── +page.svelte          # メインページ
+│   │   └── layout.css            # グローバルCSS
+│   ├── app.html                  # HTMLテンプレート
+│   └── app.d.ts                  # 型宣言
+├── static/                       # 静的ファイル（favicon等）
+├── .github/
+│   └── workflows/
+│       └── deploy.yml            # GitHub Pages自動デプロイ
+├── svelte.config.js              # SvelteKit設定
+├── vite.config.ts                # Vite設定
+├── tsconfig.json                 # TypeScript設定
+├── eslint.config.js              # ESLint設定
+├── components.json               # Shadcn-Svelte設定
+└── package.json                  # 依存関係・スクリプト
+```
+
+---
+
+## 🤝 貢献
+
+プルリクエストを歓迎します！大きな変更の場合は、まずissueを開いて変更内容を議論してください。
+
+1. このリポジトリをフォーク
+2. フィーチャーブランチを作成 (`git checkout -b feature/AmazingFeature`)
+3. 変更をコミット (`git commit -m 'Add some AmazingFeature'`)
+4. ブランチにプッシュ (`git push origin feature/AmazingFeature`)
+5. プルリクエストを作成
+
+---
+
+## 📝 ライセンス
+
+このプロジェクトは[MITライセンス](LICENSE)の下で公開されています。
+
+---
+
+## 🙏 謝辞
+
+- [Google Generative AI](https://ai.google.dev/) - Gemini API
+- [SvelteKit](https://kit.svelte.dev/) - 優れたフレームワーク
+- [TailwindCSS](https://tailwindcss.com/) - 美しいスタイリング
+- [Shadcn](https://ui.shadcn.com/) - 素晴らしいUIコンポーネント
+- その他すべてのオープンソースライブラリの作者に感謝します
+
+---
+
+## 📧 コンタクト
+
+質問や提案がある場合は、[Issues](https://github.com/tomo00024/simple-gemini-ui/issues)を開いてください。
+
+---
+
+<div align="center">
+Made with ❤️ using SvelteKit and Gemini API
+</div>
