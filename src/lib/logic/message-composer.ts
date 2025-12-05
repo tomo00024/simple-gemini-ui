@@ -119,10 +119,84 @@ export class MessageComposer {
     }
 
     /**
-     * 履歴フォーマット
-     * ★修正: 既存のテキスト処理ロジックを維持しつつ、添付ファイルがあれば追加
+     * 履歴を1つのユーザーメッセージのテキストとして結合
+     * 添付ファイルがある場合はファイル名を表記
      */
-    formatHistoryForApi(logs: LogWithSessionId[]): Array<{ role: string, parts: any[] }> {
+    private _formatHistoryAsCombinedText(logs: LogWithSessionId[]): string {
+        return logs.map(l => {
+            const speaker = l.speaker === 'user' ? 'user' : 'model';
+            const text = l.text.replace(DICE_SEPARATOR, "");
+
+            // 添付ファイルがあればファイル名を表記
+            let attachmentNote = "";
+            if (l.attachments && l.attachments.length > 0) {
+                const fileNames = l.attachments.map(a => a.name).join(", ");
+                attachmentNote = ` [添付: ${fileNames}]`;
+            }
+
+            return `${speaker}${attachmentNote}: ${text}`;
+        }).join('\n');
+    }
+
+    /**
+     * 履歴フォーマット
+     * ★修正: 設定により標準モードか結合モードかを切り替え
+     * ★追加: 結合モードでは現在のユーザー入力も含めて1つのメッセージにする
+     */
+    formatHistoryForApi(
+        logs: LogWithSessionId[],
+        settings: AppSettings,
+        currentUserInput?: { text: string, attachments?: AttachedFile[] }
+    ): Array<{ role: string, parts: any[] }> {
+        // 結合モード: 全履歴 + 現在の入力を1つのuserメッセージに統合
+        if (settings.assist.useCombinedHistoryFormat) {
+            // 履歴のテキストを結合
+            const historyCombined = this._formatHistoryAsCombinedText(logs);
+
+            // 🆕 現在の入力を追加
+            let fullText = historyCombined;
+            if (currentUserInput) {
+                const currentText = currentUserInput.text.replace(DICE_SEPARATOR, "");
+                let attachmentNote = "";
+                if (currentUserInput.attachments && currentUserInput.attachments.length > 0) {
+                    const fileNames = currentUserInput.attachments.map(a => a.name).join(", ");
+                    attachmentNote = ` [添付: ${fileNames}]`;
+                }
+
+                // 履歴がある場合は改行を追加
+                if (fullText) fullText += '\n';
+                fullText += `user${attachmentNote}: ${currentText}`;
+            }
+
+            const parts: any[] = [{ text: fullText }];
+
+            // 全ての履歴から添付ファイルを収集
+            logs.forEach(l => {
+                if (l.attachments && l.attachments.length > 0) {
+                    l.attachments.forEach(att => {
+                        if (att.storageType === 'inline' && att.data) {
+                            parts.push({
+                                inlineData: {
+                                    mimeType: att.mimeType,
+                                    data: att.data
+                                }
+                            });
+                        } else if (att.storageType === 'fire_storage' && att.fileUri) {
+                            parts.push({
+                                fileData: {
+                                    mimeType: att.mimeType,
+                                    fileUri: att.fileUri
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+
+            return [{ role: 'user', parts }];
+        }
+
+        // 標準モード: 各ログを個別のオブジェクトとして送信
         return logs.map(l => {
             // [既存ロジック保護] テキスト処理
             const parts: any[] = [{ text: l.text.replace(DICE_SEPARATOR, "") }];

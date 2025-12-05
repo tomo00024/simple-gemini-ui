@@ -27,6 +27,7 @@ export interface UiSettings {
 	chatFontSize: number;
 	showSpeakerNameInTranscript: boolean;
 	fontFamily: string;
+	enterToSend: boolean;
 }
 
 /**
@@ -47,6 +48,7 @@ export interface AssistSettings {
 	summarizeOnTokenOverflow: boolean;
 	tokenThreshold: number;
 	saveMinimalMetadata: boolean;
+	useCombinedHistoryFormat: boolean; // 履歴を1つのユーザーメッセージに結合するか
 }
 
 /**
@@ -115,6 +117,7 @@ export interface AppSettings {
 		end: string;
 		useMultipart?: boolean;
 	};
+	quickClipboard?: string; // 専用クリップボード
 }
 
 /**

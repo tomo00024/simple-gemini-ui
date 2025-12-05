@@ -5,7 +5,10 @@ import type { Session, LogWithSessionId } from '$lib/types';
 // ★あなたのApp Key
 const CLIENT_ID = 'eosyp7rbpe5x9ao';
 
-const REDIRECT_URI = browser ? window.location.origin + '/' : '';
+// Construct the redirect URI to match the current location
+// For GitHub Pages, this will be: https://tomo00024.github.io/simple-gemini-ui/
+// For localhost, this will be: http://localhost:5173/
+const REDIRECT_URI = browser ? `${window.location.origin}${window.location.pathname}` : '';
 
 export interface BackupFile {
     meta: Omit<Session, 'logs'>;

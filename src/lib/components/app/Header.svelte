@@ -49,12 +49,12 @@
     {onNewChat} 
   />
 
-  <div class="ml-6 mr-2 flex-1 max-w-sm">
+  <div class="ml-6 mr-2 flex-1 max-w-sm [&_input]:text-base!">
     <Input 
       bind:value={title} 
       onkeydown={handleKeyDown}
       onblur={handleBlur}
-      class="h-9 text-center text-lg font-semibold border-none shadow-none focus-visible:ring-0 bg-transparent px-0 placeholder:text-muted-foreground/50"
+      class="h-9 text-center font-semibold border-none shadow-none focus-visible:ring-0 bg-transparent px-0 placeholder:text-muted-foreground/50"
       placeholder="チャットタイトル"
     />
   </div>

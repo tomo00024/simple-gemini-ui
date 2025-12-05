@@ -177,7 +177,7 @@
 
   <main class="flex-1 min-h-0 relative">
     <ScrollArea class="h-full">
-      <div class="mx-auto flex max-w-3xl flex-col pb-10 pl-6 pr-4 pt-4">
+      <div class="mx-auto flex max-w-3xl flex-col pb-10 pl-4 pr-4 pt-4">
         {#each chat.logs as log (log.id)}
           <ChatMessage 
             {log}
@@ -199,7 +199,8 @@
  <Footer 
     bind:value={chat.inputMessage} 
     isLoading={chat.isLoading} 
-    attachments={chat.attachments} 
+    attachments={chat.attachments}
+    enterToSendEnabled={appSettings.value.ui.enterToSend}
     onSend={() => chat.sendMessage()}
     onStop={() => chat.stopGeneration()}
     onAddFiles={(files) => chat.addFiles(files)}

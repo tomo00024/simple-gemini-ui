@@ -1,11 +1,30 @@
 <script lang="ts">
   import * as Drawer from "$lib/components/ui/drawer";
   import { Button } from "$lib/components/ui/button";
-  import { Cpu, User, Bot, Dices, ChevronUp, ChevronDown } from "lucide-svelte";
+  import { Cpu, User, Bot, Dices, ChevronUp, ChevronDown, Copy, Clipboard } from "lucide-svelte";
   import { appSettings } from "$lib/settings.svelte";
 
-  let { open = $bindable(false) } = $props<{ open: boolean }>();
+  let { open = $bindable(false), inputValue = $bindable("") } = $props<{ open: boolean, inputValue: string }>();
+  $effect(() => {
+    if (open) {
+      history.pushState(null, "", "");
+      let isBack = false;
 
+      const handlePopState = () => {
+        isBack = true;
+        open = false;
+      };
+
+      window.addEventListener("popstate", handlePopState);
+
+      return () => {
+        window.removeEventListener("popstate", handlePopState);
+        if (!isBack) {
+          history.back();
+        }
+      };
+    }
+  });
   function toggleSetting(key: 'systemPrompt' | 'dummyUserPrompt' | 'dummyModelPrompt') {
     const config = appSettings.value[key];
     config.isEnabled = !config.isEnabled;
@@ -45,6 +64,21 @@
     const viewport = document.querySelector('[data-slot="scroll-area-viewport"]');
     if (viewport) {
       viewport.scrollTop = viewport.scrollHeight;
+    }
+    open = false;
+  }
+
+  // 4. 専用クリップボードにコピー
+  function copyToClipboard() {
+    appSettings.value.quickClipboard = inputValue;
+    appSettings.save();
+    open = false;
+  }
+
+  // 5. 専用クリップボードから貼り付け（追加）
+  function pasteFromClipboard() {
+    if (appSettings.value.quickClipboard) {
+      inputValue += appSettings.value.quickClipboard;
     }
     open = false;
   }
@@ -147,6 +181,35 @@
               <ChevronDown class="h-10! w-10!" />
             </div>
             <span class="text-xs font-medium text-center leading-tight">Scroll<br/>Bottom</span>
+          </Button>
+
+          <!-- 7. コピーボタン -->
+          <Button
+            variant="ghost"
+            class="h-auto flex-col gap-2 border-transparent text-muted-foreground opacity-50"
+            onclick={copyToClipboard}
+          >
+            <div class="rounded-full bg-background p-1">
+              <Copy class="h-10! w-10!" />
+            </div>
+            <span class="text-xs font-medium text-center leading-tight">Copy</span>
+          </Button>
+
+          <!-- 8. 貼り付けボタン -->
+          <Button
+            variant="ghost"
+            class={[
+              "h-auto flex-col gap-2",
+              appSettings.value.quickClipboard 
+                ? "border-transparent text-muted-foreground" 
+                : "border-transparent text-muted-foreground opacity-50"
+            ].join(" ")}
+            onclick={pasteFromClipboard}
+          >
+            <div class="rounded-full bg-background p-1">
+              <Clipboard class="h-10! w-10!" />
+            </div>
+            <span class="text-xs font-medium text-center leading-tight">Paste</span>
           </Button>
         </div>
       </div>

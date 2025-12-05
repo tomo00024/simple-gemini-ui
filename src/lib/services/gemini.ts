@@ -105,10 +105,17 @@ export class GeminiService {
             parts = messageContent;
         }
 
-        const userMessage: Content = { role: "user", parts: parts };
+        //結合モードの場合、messageContentは空配列になる
+        // その場合はuserMessageを追加せず、履歴のみを使用
+        let contents: Content[];
+        let userMessage: Content | null = null;  // 🆕 スコープ外でも使えるように
 
-        // 基本の履歴 + 今回のユーザー入力
-        const contents = [...this.history, userMessage];
+        if (Array.isArray(parts) && parts.length === 0) {
+            contents = this.history;
+        } else {
+            userMessage = { role: "user", parts: parts };
+            contents = [...this.history, userMessage];
+        }
 
         // ダミーユーザープロンプトの注入（ユーザー入力の直後）
         if (dummyPrompts?.user) {
@@ -207,7 +214,10 @@ export class GeminiService {
             // 成功した場合のみ履歴に追加
             // 注意: ダミープロンプトは「履歴」には保存せず、今回限りの注入とするのが一般的ですが、
             // ここでは `this.history` には `userMessage` (本当の入力) だけを追加します。
-            this.history.push(userMessage);
+            // 🆕 結合モードの場合、userMessageはnullなので追加しない
+            if (userMessage) {
+                this.history.push(userMessage);
+            }
 
             return { result, requestPayload };
 

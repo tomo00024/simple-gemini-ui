@@ -26,19 +26,21 @@ export const DEFAULT_SETTINGS: AppSettings = {
         useCustomFontSize: false,
         chatFontSize: 16,
         showSpeakerNameInTranscript: true,
-        fontFamily: "Inter"
+        fontFamily: "Inter",
+        enterToSend: true
     },
     apiErrorHandling: {
         loopApiKeys: true,
         exponentialBackoff: true,
         maxRetries: 3,
-        initialWaitTime: 3000
+        initialWaitTime: 1000
     },
     assist: {
         autoCorrectUrl: true,
         summarizeOnTokenOverflow: false,
         tokenThreshold: 100000,
-        saveMinimalMetadata: true
+        saveMinimalMetadata: true,
+        useCombinedHistoryFormat: false
     },
     generation: {
         temperature: null,
@@ -56,7 +58,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
     diceRolls: [{
         id: "default-dice-roll",
         isEnabled: false,
-        instructionText: "1d100。数値は内緒にしてください。",
+        instructionText: "1d100。51以上なら勝利の展開に、50以下なら敗北の展開に。ダイス結果は内緒にしてください。",
         diceCount: 1,
         diceType: 100
     }],

@@ -56,10 +56,18 @@ export class TokenCounterState {
         }
 
         try {
-            const apiHistory = this.composer.formatHistoryForApi(historyLogs);
-
             const { textToSave } = this.composer.compose(inputMessage, settings);
             const apiContentRaw = this.composer.createApiPayload(textToSave, settings, attachments);
+
+            // 🆕 結合モードの場合、現在のユーザー入力も履歴に含める
+            const apiHistory = this.composer.formatHistoryForApi(
+                historyLogs,
+                settings,
+                settings.assist.useCombinedHistoryFormat ? {
+                    text: textToSave,
+                    attachments: attachments
+                } : undefined
+            );
 
             let parts: { text: string }[];
             if (typeof apiContentRaw === 'string') {

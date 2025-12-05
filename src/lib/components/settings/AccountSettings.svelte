@@ -458,6 +458,17 @@
           bind:checked={settings.assist.saveMinimalMetadata} 
         />
       </div>
+      <div class="flex items-center justify-between">
+        <div class="flex flex-col gap-1">
+          <Label for="combined-history-switch" class="cursor-pointer">
+            履歴をメッセージに結合して送信
+          </Label>
+        </div>
+        <Switch 
+          id="combined-history-switch"
+          bind:checked={settings.assist.useCombinedHistoryFormat} 
+        />
+      </div>
     </div>
   </div>
     <DangerZone />

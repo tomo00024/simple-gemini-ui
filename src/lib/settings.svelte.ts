@@ -25,7 +25,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
 		maxOutputTokens: null,
 		thinkingBudget: null,
 		includeThoughts: false
-	}
+	},
+	quickClipboard: ""
 };
 
 export function loadSettings(): AppSettings {

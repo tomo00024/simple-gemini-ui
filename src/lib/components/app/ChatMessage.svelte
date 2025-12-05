@@ -43,7 +43,38 @@
       ? "font-size: var(--chat-font-size); line-height: 1.6;" 
       : undefined
   );
+ $effect(() => {
+    if (isMetadataOpen) {
+      history.pushState(null, "", "");
+      let isBack = false;
+      const handlePopState = () => {
+        isBack = true;
+        isMetadataOpen = false;
+      };
+      window.addEventListener("popstate", handlePopState);
+      return () => {
+        window.removeEventListener("popstate", handlePopState);
+        if (!isBack) history.back();
+      };
+    }
+  });
 
+  // 2. 削除確認ダイアログ用
+  $effect(() => {
+    if (isDeleteDialogOpen) {
+      history.pushState(null, "", "");
+      let isBack = false;
+      const handlePopState = () => {
+        isBack = true;
+        isDeleteDialogOpen = false;
+      };
+      window.addEventListener("popstate", handlePopState);
+      return () => {
+        window.removeEventListener("popstate", handlePopState);
+        if (!isBack) history.back();
+      };
+    }
+  });
   function toggleMenu() {
     if (isEditing) return;
     isMenuOpen = !isMenuOpen;
@@ -168,7 +199,7 @@
     <!-- 表示モード -->
     <button 
       type="button"
-      class={cn("relative text-left text-base leading-relaxed whitespace-pre-wrap wrap-break-word rounded-2xl px-4 transition-colors duration-200 border border-transparent")} 
+      class={cn("relative text-left text-base leading-relaxed whitespace-pre-wrap ")} 
       style={customFontStyle}
       onclick={toggleMenu}
     >

@@ -180,12 +180,24 @@ export class ChatSession {
 
         try {
             // 1. ~ 3. 生成実行までは同じ
-            const apiHistory = this.composer.formatHistoryForApi(historyLogs);
-            const apiContent = this.composer.createApiPayload(
-                triggerUserLog.text,
+            // 🆕 結合モードの場合、現在のユーザー入力も履歴に含める
+            const apiHistory = this.composer.formatHistoryForApi(
+                historyLogs,
                 settings,
-                triggerUserLog.attachments
+                settings.assist.useCombinedHistoryFormat ? {
+                    text: triggerUserLog.text,
+                    attachments: triggerUserLog.attachments
+                } : undefined
             );
+
+            // 🆕 結合モードの場合、messageContentは空配列にする（履歴に含まれているため）
+            const apiContent = settings.assist.useCombinedHistoryFormat
+                ? []
+                : this.composer.createApiPayload(
+                    triggerUserLog.text,
+                    settings,
+                    triggerUserLog.attachments
+                );
             const result = await this.aiOrchestrator.generate(apiHistory, apiContent, settings, this._abortController.signal);
 
             // ★変更点1: Finish Reason のハンドリング
@@ -272,8 +284,11 @@ export class ChatSession {
                 this._logs.set(errorLog.id, errorLog);
                 await this.repo.saveLog(errorLog);
 
-                const waitTime = apiSettings.initialWaitTime * Math.pow(2, retryCount);
-                console.log(`Retryable Error (${analysis.type}). Retrying in ${waitTime}ms...`);
+                // 指数バックオフ + ジッター (0~25%のランダム要素を追加)
+                const baseWaitTime = apiSettings.initialWaitTime * Math.pow(2, retryCount);
+                const jitter = Math.random() * 0.25 * baseWaitTime;
+                const waitTime = Math.floor(baseWaitTime + jitter);
+                console.log(`Retryable Error (${analysis.type}). Retrying in ${waitTime}ms (base: ${baseWaitTime}ms + jitter: ${Math.floor(jitter)}ms)...`);
 
                 this._retryCount = retryCount + 1;
                 this._retryTimer = setTimeout(() => {

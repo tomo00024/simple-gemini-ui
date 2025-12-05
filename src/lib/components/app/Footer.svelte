@@ -19,6 +19,7 @@
     value = $bindable(""), 
     isLoading = false,
     attachments = [], // 追加: 表示用配列
+    enterToSendEnabled = true, // Enter送信が有効かどうか
     onSend,
     onStop,
     onAddFiles,      // 追加: ファイル追加コールバック
@@ -27,6 +28,7 @@
     value: string, 
     isLoading?: boolean,
     attachments?: { id: string, name: string }[],
+    enterToSendEnabled?: boolean, // 追加
     onSend: () => void,
     onStop: () => void,
     onAddFiles?: (files: File[]) => void,
@@ -36,8 +38,8 @@
   let fileInput: HTMLInputElement;
  let isQuickSettingsOpen = $state(false);
   function handleKeydown(e: KeyboardEvent) {
-    const isMobile = window.innerWidth < 768; 
-    if (isMobile) return;
+    // 設定がOFFの場合は通常の改行動作
+    if (!enterToSendEnabled) return;
 
     if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
       e.preventDefault(); 
@@ -66,7 +68,7 @@
     }
   }
 </script>
-<QuickSettingsDrawer bind:open={isQuickSettingsOpen} />
+<QuickSettingsDrawer bind:open={isQuickSettingsOpen} bind:inputValue={value} />
 <footer class="shrink-0 border-t bg-background/95 backdrop-blur px-2">
   <!-- 添付ファイルリスト表示エリア -->
   {#if attachments && attachments.length > 0}

@@ -18,6 +18,13 @@
                <Label for="showTokenCount">トークン数を表示</Label>
                <Switch id="showTokenCount" bind:checked={settings.ui.showTokenCount} />
            </div>
+           
+           <div class="flex items-center justify-between space-x-2">
+               <div class="space-y-1">
+                   <Label for="enterToSend">Enterキーで送信</Label>
+               </div>
+               <Switch id="enterToSend" bind:checked={settings.ui.enterToSend} />
+           </div>
 <!-- 
            <div class="flex items-center justify-between space-x-2">
                <Label for="showSpeakerName">話者名を表示</Label>

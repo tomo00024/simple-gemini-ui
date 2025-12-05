@@ -25,7 +25,26 @@
     settings: AppSettings, 
     open?: boolean 
   }>();
+  $effect(() => {
+    if (open) {
+      history.pushState(null, "", "");
+      let isBack = false;
 
+      const handlePopState = () => {
+        isBack = true;
+        open = false;
+      };
+
+      window.addEventListener("popstate", handlePopState);
+
+      return () => {
+        window.removeEventListener("popstate", handlePopState);
+        if (!isBack) {
+          history.back();
+        }
+      };
+    }
+  });
   function handleSave() {
     console.log("Saving settings...", settings);
     open = false;

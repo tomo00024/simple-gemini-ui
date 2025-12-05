@@ -46,7 +46,26 @@
 
     return () => subscription.unsubscribe();
   });
+ $effect(() => {
+    if (isOpen) {
+      history.pushState(null, "", "");
+      let isBack = false;
 
+      const handlePopState = () => {
+        isBack = true;
+        isOpen = false;
+      };
+
+      window.addEventListener("popstate", handlePopState);
+
+      return () => {
+        window.removeEventListener("popstate", handlePopState);
+        if (!isBack) {
+          history.back();
+        }
+      };
+    }
+  });
   function handleSelect(id: string) {
     onSelectSession(id);
     isOpen = false;

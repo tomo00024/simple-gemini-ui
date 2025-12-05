@@ -4,8 +4,9 @@
   import { Input } from "$lib/components/ui/input";
   import { Label } from "$lib/components/ui/label";
   import { Switch } from "$lib/components/ui/switch";
-  import { Checkbox } from "$lib/components/ui/checkbox"; // 追加
+  import { Checkbox } from "$lib/components/ui/checkbox";
   import type { AppSettings, DiceRoll } from "$lib/types";
+  import * as Accordion from "$lib/components/ui/accordion";
 
   let { settings = $bindable() } = $props<{ settings: AppSettings }>();
 
@@ -103,7 +104,7 @@ function setAllDiceStatus(isChecked: boolean) {
         />
       </div>
     {/if}
-<!-- 複数ダイスを辞めてみる
+    <!-- 複数ダイスを辞めてみる
         <Button variant="outline" size="sm" onclick={addDiceRoll}>
           <Plus class="h-4 w-4 mr-2" /> 追加
         </Button>-->
@@ -118,7 +119,6 @@ function setAllDiceStatus(isChecked: boolean) {
               <Checkbox bind:checked={dice.isEnabled} />
             </div>
             -->
-
             <!-- 名前と設定値の入力エリア -->
             <div class="flex-1 flex items-center gap-4 min-w-0">
                 <Input 
@@ -144,7 +144,6 @@ function setAllDiceStatus(isChecked: boolean) {
                   />
                 </div>
             </div>
-
             <!-- 複数ダイスを辞めてみる
             <div class="flex items-center gap-2 shrink-0">
                 <Button variant="ghost" size="icon" onclick={() => removeDiceRoll(dice.id)} title="削除">
@@ -152,38 +151,45 @@ function setAllDiceStatus(isChecked: boolean) {
                 </Button>
             </div>
             -->
-
           </div>
+           <!-- 詳細機能（マーカー設定）セクション -->
+  <Accordion.Root type="single" class="w-full">
+    <Accordion.Item value="advanced-markers" class="border-b-0">
+      <Accordion.Trigger class="text-sm text-muted-foreground hover:no-underline">
+        ダイス送信詳細機能
+      </Accordion.Trigger>
+      <Accordion.Content>
+        <div class="space-y-6 pt-4 px-1">
+          <div class="flex items-center justify-between">
+            <Label>ダイス結果を独立したパートとして送信</Label>
+            <Switch bind:checked={settings.diceRollMarkers.useMultipart} />
+          </div>
+
+          {#if settings.diceRollMarkers}
+            <div class="flex items-center justify-between">
+              <Label>マーカー機能の有効化</Label>
+              <Switch bind:checked={settings.diceRollMarkers.isEnabled} />
+            </div>
+
+            <div class="space-y-4 pl-4 transition-opacity duration-200 {settings.diceRollMarkers.isEnabled ? '' : 'opacity-50 pointer-events-none'}">
+              <div class="flex items-center justify-between space-x-2">
+                <Label class="text-xs text-muted-foreground w-24">開始マーカー</Label>
+                <Input class="bg-background w-full" bind:value={settings.diceRollMarkers.start} />
+              </div>
+              <div class="flex items-center justify-between space-x-2">
+                <Label class="text-xs text-muted-foreground w-24">終了マーカー</Label>
+                <Input class="bg-background w-full" bind:value={settings.diceRollMarkers.end} />
+              </div>
+            </div>
+          {/if}
+        </div>
+      </Accordion.Content>
+    </Accordion.Item>
+  </Accordion.Root>
         {/each}
       </div>
     {/if}
   </div>
 
-  <!-- マーカー設定セクション -->
-  <div class="space-y-6">
-    <div class="flex items-center justify-between">
-      <Label>ダイス結果を独立したパートとして送信</Label>
-      <Switch bind:checked={settings.diceRollMarkers.useMultipart} />
-    </div>
-    {#if settings.diceRollMarkers}
-      <div class="flex items-center justify-between">
-        <Label>マーカー機能の有効化</Label>
-        <Switch bind:checked={settings.diceRollMarkers.isEnabled} />
-      </div>
-
-               <div class=" gap-6 pl-4 transition-opacity duration-200 {settings.diceRollMarkers.isEnabled ? '' : 'opacity-50 pointer-events-none'}">
-
-               <div class="flex items-center justify-between space-x-2">
-
-                  <Label class="text-xs text-muted-foreground w-24">開始マーカー</Label>
-                  <Input class="bg-background w-full" bind:value={settings.diceRollMarkers.start} />
-              </div>
-              <div class="flex items-center justify-between space-x-2">
-                  <Label class="text-xs text-muted-foreground w-24">終了マーカー</Label>
-                  <Input class="bg-background w-full" bind:value={settings.diceRollMarkers.end} />
-              </div>
-          </div>
-
-    {/if}                  
-</div>
+ 
 </div>
