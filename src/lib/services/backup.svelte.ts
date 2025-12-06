@@ -5,7 +5,7 @@ import { db } from '$lib/db';
 class BackupManager {
     private pendingSessionIds = new Set<string>();
     private debounceTimer: ReturnType<typeof setTimeout> | null = null;
-    private readonly DEBOUNCE_MS = 30000; // 30秒
+    private readonly DEBOUNCE_MS = 5000; // 5秒
 
     // UIの状態と連携
     isLoggedIn = $state(dropboxService.isLoggedIn);
