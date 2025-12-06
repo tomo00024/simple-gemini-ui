@@ -15,8 +15,6 @@ Gemini APIを活用したシンプルなチャットUIツールです。複数�
 - 🔑 **複数APIキー管理**: 複数のGemini API Keyを登録・切り替え可能
 - 🔄 **自動リトライ**: 自動でリトライする機能
 - ☁️ **Dropbox連携**: チャット履歴をDropboxにバックアップ
-- 📎 **ファイル添付**: 画像やドキュメントを添付してAIと対話
-- 💾 **ローカルストレージ**: 全ての会話はブラウザのIndexedDBに保存
 
 
 ---
@@ -141,7 +139,8 @@ simple-gemini-ui/
 │   │   │   ├── token-cost.ts            # トークン使用量・コスト計算
 │   │   │   ├── exchange-rate.ts         # 為替レート取得
 │   │   │   ├── image-correction.ts      # 画像補正
-│   │   │   └── dice.ts                  # サイコロ機能
+│   │   │   ├── dice.ts                  # サイコロ機能
+│   │   │   └── random-choice.ts         # ランダム選択肢機能
 │   │   ├── logic/                # コアロジック
 │   │   │   ├── message-composer.ts      # メッセージ構築
 │   │   │   ├── gemini-error-handler.ts  # エラーハンドリング

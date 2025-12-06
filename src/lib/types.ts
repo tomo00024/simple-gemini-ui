@@ -12,6 +12,18 @@ export interface DiceRoll {
 	diceType: number; // ダイスの種類 (例: 6, 100)
 }
 
+/**
+ * カスタム選択肢機能の設定
+ * ユーザーが定義したテキストリストからランダムに1つを選択
+ */
+export interface CustomChoiceRoll {
+	id: string; // カスタム選択肢設定の一意なID
+	isEnabled: boolean; // 機能が有効か
+	instructionText: string; // 指示文章
+	options: string[]; // カスタム選択肢の配列（例: ["大成功", "成功", "失敗", "大失敗"]）
+}
+
+
 export interface ApiKey {
 	id: string;
 	name: string;
@@ -112,6 +124,13 @@ export interface AppSettings {
 	diceRolls?: DiceRoll[];
 	lastRateUpdate?: string;
 	diceRollMarkers?: {
+		isEnabled: boolean;
+		start: string;
+		end: string;
+		useMultipart?: boolean;
+	};
+	customChoiceRolls?: CustomChoiceRoll[];
+	customChoiceMarkers?: {
 		isEnabled: boolean;
 		start: string;
 		end: string;

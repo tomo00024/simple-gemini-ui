@@ -9,9 +9,22 @@ export class MessageComposer {
      */
     compose(userText: string, settings: AppSettings) {
         const dicePart = this._generateDicePart(userText, settings);
+        const customChoicePart = this._generateCustomChoicePart(userText, settings);
 
-        const textToSave = dicePart
-            ? dicePart + DICE_SEPARATOR + userText
+        // ダイスとカスタム選択肢の両方がある場合はそのまま結合
+        // (それぞれが独自のマーカーで囲まれているため、セパレーターは不要)
+        let combinedPart = "";
+        if (dicePart && customChoicePart) {
+            combinedPart = dicePart + customChoicePart;
+        } else if (dicePart) {
+            combinedPart = dicePart;
+        } else if (customChoicePart) {
+            combinedPart = customChoicePart;
+        }
+
+        // セパレーターはダイス/カスタム選択肢部分とユーザー入力を区切るためだけに使用
+        const textToSave = combinedPart
+            ? combinedPart + DICE_SEPARATOR + userText
             : userText;
 
         // API Content作成は添付ファイルなし版として一旦呼ぶ（UI側で送信時に添付付きで再生成される想定、あるいはここでの呼び出しはプレビュー用）
@@ -47,7 +60,9 @@ export class MessageComposer {
     ): any[] { // 戻り値の型を拡張 (text | inlineData | fileData を許容するため any[] またはSDKのPart型)
 
         const textParts: any[] = [];
-        const useMultipart = settings.diceRollMarkers?.useMultipart ?? false;
+        const useDiceMultipart = settings.diceRollMarkers?.useMultipart ?? false;
+        const useCustomChoiceMultipart = settings.customChoiceMarkers?.useMultipart ?? false;
+        const useMultipart = useDiceMultipart || useCustomChoiceMultipart;
 
         // --- [既存ロジック保護] ダイスロールが含まれているか判定 ---
         if (fullText.includes(DICE_SEPARATOR) && useMultipart) {
@@ -280,6 +295,38 @@ export class MessageComposer {
             }
             const rollString = allRolls.join(',');
             return userText ? `${rollString},` : rollString;
+        }
+    }
+
+    private _generateCustomChoicePart(userText: string, settings: AppSettings): string {
+        const activeChoices = settings.customChoiceRolls?.filter(c => c.isEnabled) ?? [];
+        if (activeChoices.length === 0) return "";
+
+        const markers = settings.customChoiceMarkers;
+        const useMarkers = markers?.isEnabled ?? false;
+
+        if (useMarkers) {
+            const parts = activeChoices.map(c => {
+                // カスタム選択肢からランダムに1つを選択
+                const selected = c.options.length > 0
+                    ? c.options[Math.floor(Math.random() * c.options.length)]
+                    : "";
+                return `${c.instructionText}:${selected}`;
+            });
+            const combined = parts.join(' ');
+            const start = markers?.start || "[";
+            const end = markers?.end || "]";
+            return `${start}${combined}${end}\n`;
+        } else {
+            const allSelected: string[] = [];
+            for (const c of activeChoices) {
+                const selected = c.options.length > 0
+                    ? c.options[Math.floor(Math.random() * c.options.length)]
+                    : "";
+                allSelected.push(selected);
+            }
+            const selectedString = allSelected.join(',');
+            return userText ? `${selectedString},` : selectedString;
         }
     }
 }

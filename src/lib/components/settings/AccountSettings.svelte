@@ -243,7 +243,7 @@
 
     {#if backupManager.isLoggedIn}
       <div class="flex items-center justify-between space-x-2">
-        <Label for="backupEnabled">バックアップ機能を有効化</Label>
+        <Label for="backupEnabled">自動バックアップを有効化</Label>
         <Switch id="backupEnabled" bind:checked={settings.backup.isEnabled} />
       </div>
 
@@ -447,7 +447,7 @@
 
   <!-- メタデータ設定 -->
   <div class="space-y-6">
-    <h3 class="font-medium text-lg border-b border-muted-background">メタデータ設定</h3>
+    <h3 class="font-medium text-lg border-b border-muted-background">詳細設定</h3>
     <div class="grid gap-6">
       <div class="flex items-center justify-between">
         <Label for="save-minimal-metadata-switch" class="cursor-pointer">

@@ -5,7 +5,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
     apiKeys: [],
     activeApiKeyId: null,
     model: "gemini-2.5-pro",
-    availableModelList: ["gemini-3-pro-preview", "gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.5-flash-lite"],
+    availableModelList: ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.5-flash-lite"],
     systemPrompt: {
         isEnabled: false,
         activePresetId: "",
@@ -51,14 +51,14 @@ export const DEFAULT_SETTINGS: AppSettings = {
         includeThoughts: false
     },
     backup: {
-        isEnabled: false,
+        isEnabled: true,
         autoBackup: false,
         lastBackupAt: null
     },
     diceRolls: [{
         id: "default-dice-roll",
         isEnabled: false,
-        instructionText: "1d100。51以上なら勝利の展開に、50以下なら敗北の展開に。ダイス結果は内緒にしてください。",
+        instructionText: "1d100。ダイス結果は内緒にしてください。",
         diceCount: 1,
         diceType: 100
     }],
@@ -66,6 +66,18 @@ export const DEFAULT_SETTINGS: AppSettings = {
         isEnabled: true,
         start: "[ダイス]",
         end: "[/ダイス]ユーザー文章：",
+        useMultipart: true
+    },
+    customChoiceRolls: [{
+        id: "default-custom-choice",
+        isEnabled: false,
+        instructionText: "結果は内緒にしてください。",
+        options: ["大成功", "成功", "失敗", "大失敗"]
+    }],
+    customChoiceMarkers: {
+        isEnabled: true,
+        start: "[選択肢]",
+        end: "[/選択肢]ユーザー文章：",
         useMultipart: true
     },
     tokenUsageAlert: {

@@ -5,7 +5,8 @@
   import { Label } from "$lib/components/ui/label";
   import { Switch } from "$lib/components/ui/switch";
   import { Checkbox } from "$lib/components/ui/checkbox";
-  import type { AppSettings, DiceRoll } from "$lib/types";
+  import { Textarea } from "$lib/components/ui/textarea";
+  import type { AppSettings, DiceRoll, CustomChoiceRoll } from "$lib/types";
   import * as Accordion from "$lib/components/ui/accordion";
 
   let { settings = $bindable() } = $props<{ settings: AppSettings }>();
@@ -73,6 +74,44 @@ function setAllDiceStatus(isChecked: boolean) {
     
     // 配列の参照を更新してリアクティビティをトリガー
     settings.diceRolls = [...settings.diceRolls];
+  }
+
+  // カスタム選択肢用の関数
+  function addCustomChoice() {
+    if (!settings.customChoiceRolls) {
+      settings.customChoiceRolls = [];
+    }
+    const newChoice: CustomChoiceRoll = {
+      id: generateId(),
+      isEnabled: true,
+      instructionText: "結果は内緒にしてください。",
+      options: ["大成功", "成功", "失敗", "大失敗"]
+    };
+    settings.customChoiceRolls.push(newChoice);
+  }
+
+  function removeCustomChoice(id: string) {
+    if (!settings.customChoiceRolls) return;
+    settings.customChoiceRolls = settings.customChoiceRolls.filter((c: CustomChoiceRoll) => c.id !== id);
+  }
+
+  let hasActiveCustomChoice = $derived(
+    settings.customChoiceRolls?.some((c: CustomChoiceRoll) => c.isEnabled) ?? false
+  );
+
+  function setAllCustomChoiceStatus(isChecked: boolean) {
+    if (!settings.customChoiceRolls) return;
+    settings.customChoiceRolls.forEach((c: CustomChoiceRoll) => c.isEnabled = isChecked);
+    settings.customChoiceRolls = [...settings.customChoiceRolls];
+  }
+
+  // 選択肢をテキストから配列に、配列からテキストに変換
+  function optionsToText(options: string[]): string {
+    return options.join('\n');
+  }
+
+  function textToOptions(text: string): string[] {
+    return text.split('\n').map(s => s.trim()).filter(s => s.length > 0);
   }
 </script>
 
@@ -186,6 +225,97 @@ function setAllDiceStatus(isChecked: boolean) {
       </Accordion.Content>
     </Accordion.Item>
   </Accordion.Root>
+        {/each}
+      </div>
+    {/if}
+  </div>
+
+  <!-- カスタム選択肢設定セクション -->
+  <div class="space-y-6">
+    <!-- タイトル -->
+    <h3 class="font-medium text-lg border-b border-muted-background">ランダム選択肢設定</h3>
+
+    <!-- 一括有効化スイッチ -->
+    {#if settings.customChoiceRolls && settings.customChoiceRolls.length > 0}
+      <div class="flex items-center justify-between space-x-2">
+        <Label for="customChoiceRolls" class="flex flex-col space-y-1">
+          ランダム選択肢を有効にする
+        </Label>
+        <Switch 
+          id="customChoiceRolls"
+          checked={hasActiveCustomChoice} 
+          onCheckedChange={setAllCustomChoiceStatus}
+        />
+      </div>
+    {/if}
+
+    <!-- カスタム選択肢設定リスト -->
+    {#if settings.customChoiceRolls && settings.customChoiceRolls.length > 0}
+      <div class="space-y-4">
+        {#each settings.customChoiceRolls as choice (choice.id)}
+          <div class="space-y-4">
+            <div class="flex items-start gap-4">
+              <!-- 指示文入力 -->
+              <div class="flex-1 space-y-2">
+                <Label class="text-sm text-muted-foreground">指示文</Label>
+                <Input 
+                  type="text" 
+                  class="bg-background"
+                  bind:value={choice.instructionText} 
+                  placeholder="例: 結果は内緒にしてください" 
+                />
+              </div>
+            </div>
+
+            <!-- 選択肢入力 -->
+            <div class="space-y-2">
+              <Label class="text-sm text-muted-foreground">選択肢（1行に1つ）</Label>
+              <Textarea 
+                class="bg-background min-h-24"
+                value={optionsToText(choice.options)}
+                oninput={(e) => {
+                  const target = e.target as HTMLTextAreaElement;
+                  choice.options = textToOptions(target.value);
+                }}
+                placeholder="大成功&#10;成功&#10;失敗&#10;大失敗"
+              />
+            </div>
+
+            <!-- 詳細機能（マーカー設定）セクション -->
+            <Accordion.Root type="single" class="w-full">
+              <Accordion.Item value="advanced-markers-choice" class="border-b-0">
+                <Accordion.Trigger class="text-sm text-muted-foreground hover:no-underline">
+                  選択肢送信詳細機能
+                </Accordion.Trigger>
+                <Accordion.Content>
+                  <div class="space-y-6 pt-4 px-1">
+                    <div class="flex items-center justify-between">
+                      <Label>選択肢結果を独立したパートとして送信</Label>
+                      <Switch bind:checked={settings.customChoiceMarkers.useMultipart} />
+                    </div>
+
+                    {#if settings.customChoiceMarkers}
+                      <div class="flex items-center justify-between">
+                        <Label>マーカー機能の有効化</Label>
+                        <Switch bind:checked={settings.customChoiceMarkers.isEnabled} />
+                      </div>
+
+                      <div class="space-y-4 pl-4 transition-opacity duration-200 {settings.customChoiceMarkers.isEnabled ? '' : 'opacity-50 pointer-events-none'}">
+                        <div class="flex items-center justify-between space-x-2">
+                          <Label class="text-xs text-muted-foreground w-24">開始マーカー</Label>
+                          <Input class="bg-background w-full" bind:value={settings.customChoiceMarkers.start} />
+                        </div>
+                        <div class="flex items-center justify-between space-x-2">
+                          <Label class="text-xs text-muted-foreground w-24">終了マーカー</Label>
+                          <Input class="bg-background w-full" bind:value={settings.customChoiceMarkers.end} />
+                        </div>
+                      </div>
+                    {/if}
+                  </div>
+                </Accordion.Content>
+              </Accordion.Item>
+            </Accordion.Root>
+          </div>
         {/each}
       </div>
     {/if}

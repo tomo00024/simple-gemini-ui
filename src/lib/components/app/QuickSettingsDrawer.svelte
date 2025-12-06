@@ -1,7 +1,7 @@
 <script lang="ts">
   import * as Drawer from "$lib/components/ui/drawer";
   import { Button } from "$lib/components/ui/button";
-  import { Cpu, User, Bot, Dices, ChevronUp, ChevronDown, Copy, Clipboard } from "lucide-svelte";
+  import { Cpu, User, Bot, Dices, ChevronUp, ChevronDown, Copy, Clipboard, ListChecks } from "lucide-svelte";
   import { appSettings } from "$lib/settings.svelte";
 
   let { open = $bindable(false), inputValue = $bindable("") } = $props<{ open: boolean, inputValue: string }>();
@@ -51,6 +51,23 @@
     appSettings.save();
   }
 
+  // カスタム選択肢用の状態と関数
+  let isCustomChoiceEnabled = $derived(
+    appSettings.value.customChoiceRolls?.some((c: any) => c.isEnabled) ?? false
+  );
+
+  function toggleCustomChoice() {
+    if (!appSettings.value.customChoiceRolls) return;
+
+    const newState = !isCustomChoiceEnabled;
+    
+    appSettings.value.customChoiceRolls.forEach((c: any) => {
+      c.isEnabled = newState;
+    });
+    
+    appSettings.save();
+  }
+
   // 3. スクロール位置を移動する関数
   function scrollToTop() {
     const viewport = document.querySelector('[data-slot="scroll-area-viewport"]');
@@ -92,7 +109,7 @@
       </Drawer.Header>
 
       <div class="p-4 pt-0">
-        <div class="grid grid-cols-4 gap-4">
+        <div class="grid grid-cols-5 gap-4">
           <!-- 1. システムプロンプト -->
  <Button
             variant="ghost"
@@ -157,6 +174,23 @@
               <Dices class="h-10! w-10!" />
             </div>
             <span class="text-xs font-medium text-center leading-tight">Dice<br/>Roll</span>
+          </Button>
+
+          <!-- 4.5. ランダム選択肢 -->
+          <Button
+            variant="ghost"
+            class={[
+              "h-auto flex-col gap-2",
+              isCustomChoiceEnabled
+                ? "border-foreground text-foreground" 
+                : "border-transparent text-muted-foreground opacity-50"
+            ].join(" ")}
+            onclick={toggleCustomChoice}
+          >
+            <div class="rounded-full bg-background p-1">
+              <ListChecks class="h-10! w-10!" />
+            </div>
+            <span class="text-xs font-medium text-center leading-tight">Random<br/>Choice</span>
           </Button>
 
           <!-- 5. 一番上に移動 -->
